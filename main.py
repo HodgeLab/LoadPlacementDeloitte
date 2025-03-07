@@ -10,19 +10,13 @@ from grid_data import get_9bus_system, add_new_load
 from dc_power_flow import run_dc_power_flow, check_line_violations
 from unit_commitment import solve_unit_commitment
 from load_testing import run_load_placement_test, recommend_load_placement
-
-# Try to import visualization functions, but make them optional
-try:
-    from visualization import (
-        plot_network, 
-        plot_loading_changes, 
-        plot_recommendation_results,
-        plot_generator_dispatch
+from visualization import (
+    plot_network, 
+    plot_loading_changes, 
+    plot_recommendation_results,
+    plot_generator_dispatch
     )
-    visualization_available = True
-except ImportError:
-    visualization_available = False
-    print("WARNING: Visualization modules not available. Will run without plotting.")
+
 
 def main():
     # Parse command line arguments
