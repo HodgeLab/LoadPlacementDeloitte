@@ -125,47 +125,46 @@ def main():
         return 1
     
     # Option to display visualizations if available
-    if visualization_available:
-        show_plots = input("\nDo you want to display visualizations? (y/n): ").lower() == 'y'
-        
-        if show_plots:
-            try:
-                # Plot base network
-                print("\nPlotting base network...")
-                plot_network(buses, branches, base_results['flows'], title="Base Case Network")
+    show_plots = input("\nDo you want to display visualizations? (y/n): ").lower() == 'y'
+    
+    if show_plots:
+        try:
+            # Plot base network
+            print("\nPlotting base network...")
+            plot_network(buses, branches, base_results['flows'], title="Base Case Network")
+            
+            # Plot generator dispatch if unit commitment was run
+            if uc_results and not args.skip_uc:
+                print("Plotting generator dispatch...")
+                plot_generator_dispatch(uc_results)
+            
+            # Plot results for recommended bus
+            if not recommendation['ranked_buses'][0]['has_violations']:
+                best_bus = recommendation['ranked_buses'][0]['bus_id']
+                print(f"Plotting results for recommended bus {best_bus}...")
+                plot_loading_changes(base_results, test_results, best_bus)
                 
-                # Plot generator dispatch if unit commitment was run
-                if uc_results and not args.skip_uc:
-                    print("Plotting generator dispatch...")
-                    plot_generator_dispatch(uc_results)
-                
-                # Plot results for recommended bus
-                if not recommendation['ranked_buses'][0]['has_violations']:
-                    best_bus = recommendation['ranked_buses'][0]['bus_id']
-                    print(f"Plotting results for recommended bus {best_bus}...")
-                    plot_loading_changes(base_results, test_results, best_bus)
-                    
-                    # Plot network with the new load at the recommended bus
-                    modified_buses = add_new_load(
-                        buses, best_bus, args.load_size, args.reactive_load
-                    )
-                    modified_results = run_dc_power_flow(
-                        modified_buses, branches, generators, base_mva
-                    )
-                    plot_network(
-                        modified_buses, 
-                        branches, 
-                        modified_results['flows'],
-                        highlight_buses=[best_bus],
-                        title=f"Network with New Load at Bus {best_bus}"
-                    )
-                
-                # Plot recommendation results
-                print("Plotting recommendation results...")
-                plot_recommendation_results(recommendation)
-            except Exception as e:
-                print(f"WARNING: Visualization failed: {str(e)}")
-                print("   Continuing without visualizations.")
+                # Plot network with the new load at the recommended bus
+                modified_buses = add_new_load(
+                    buses, best_bus, args.load_size, args.reactive_load
+                )
+                modified_results = run_dc_power_flow(
+                    modified_buses, branches, generators, base_mva
+                )
+                plot_network(
+                    modified_buses, 
+                    branches, 
+                    modified_results['flows'],
+                    highlight_buses=[best_bus],
+                    title=f"Network with New Load at Bus {best_bus}"
+                )
+            
+            # Plot recommendation results
+            print("Plotting recommendation results...")
+            plot_recommendation_results(recommendation)
+        except Exception as e:
+            print(f"WARNING: Visualization failed: {str(e)}")
+            print("   Continuing without visualizations.")
     else:
         print("\nVisualizations not available. Install matplotlib, networkx, and pandas to enable.")
     
