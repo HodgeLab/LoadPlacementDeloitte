@@ -23,7 +23,7 @@ def main():
     parser = argparse.ArgumentParser(description='Power System Load Analysis')
     parser.add_argument('--load-size', type=float, default=50.0,
                         help='Size of new load to test (MW)')
-    parser.add_argument('--reactive-load', type=float, default=20.0,
+    parser.add_argument('--reactive-load', type=float, default=0.0,
                         help='Reactive component of new load (MVAr)')
     parser.add_argument('--test-buses', type=str, default='4,5,6,7,8,9',
                         help='Comma-separated list of buses to test load placement')
