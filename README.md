@@ -15,8 +15,8 @@ The project is broken down into the following modules:
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/yourusername/power-system-analysis.git
-cd power-system-analysis
+git clone git@github.com:HodgeLab/LoadPlacementDeloitte.git
+cd LoadPlacementDeloitte
 ```
 
 2. Install required packages:
