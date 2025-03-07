@@ -1,17 +1,15 @@
 # Power System Load Impact Analysis
 
-This project provides a modular framework for analyzing the impact of adding new loads to a power system. It includes tools for DC power flow analysis, unit commitment optimization, and load placement testing.
-
 ## Project Structure
 
 The project is broken down into the following modules:
 
 - `grid_data.py`: Contains the power system network data (buses, branches, generators)
 - `dc_power_flow.py`: Implements DC power flow calculations
-- `unit_commitment.py`: Provides a simplified unit commitment optimization model
+- `unit_commitment.py`: Provides a simplified unit commitment optimization model (optional)
 - `load_testing.py`: Tools for testing the impact of new load placement
 - `visualization.py`: Visualization utilities for power system results
-- `main.py`: Main script that orchestrates the analysis
+- `main.py`: Main script that deals with the analysis
 
 ## Installation
 
@@ -78,16 +76,3 @@ To add a new power system model:
 
 1. Create a new function in `grid_data.py` that returns the system data
 2. Follow the same format as `get_9bus_system()`
-
-### Implementing New Analysis Features
-
-You can extend the project with additional analysis capabilities:
-
-- AC power flow for more accurate results
-- Contingency analysis (N-1 security evaluation)
-- More detailed unit commitment with ramping constraints
-- Monte Carlo simulations for probabilistic analysis
-
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
