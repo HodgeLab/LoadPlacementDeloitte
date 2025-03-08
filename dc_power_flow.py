@@ -133,7 +133,6 @@ def run_dc_power_flow(buses, branches, generators, base_mva=100.0):
                     'limit_mw': branch[5],
                     'loading_percent': abs(flow) / branch[5] * 100 if branch[5] > 0 else 0
                 })
-    
     # Return results
     return {
         'theta': theta,
