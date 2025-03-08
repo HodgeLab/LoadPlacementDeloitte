@@ -39,11 +39,17 @@ def run_load_placement_test(test_buses, new_load_mw=50.0, new_load_mvar=20.0):
         modified_buses = add_new_load(
             original_buses, bus_id, new_load_mw, new_load_mvar
         )
+
+        total_load = sum(bus[2] for bus in modified_buses)
+        total_gen_capacity = sum(gen[7] for gen in generators if gen[8] == 1)  # Sum of Pmax for in-service generators
         
+        gen_capacity_exceeded = total_load > total_gen_capacity
+
         # Run power flow with modified load
         pf_results = run_dc_power_flow(
             modified_buses, branches, generators, base_mva
         )
+        
         
         # Check for violations
         violations = check_line_violations(pf_results['flows'])
@@ -67,7 +73,9 @@ def run_load_placement_test(test_buses, new_load_mw=50.0, new_load_mvar=20.0):
             'violations': violations,
             'loading_changes': loading_changes,
             'max_loading_change': max([c['change'] for c in loading_changes]),
-            'most_affected_line': sorted(loading_changes, key=lambda x: abs(x['change']), reverse=True)[0]
+            'most_affected_line': sorted(loading_changes, key=lambda x: abs(x['change']), reverse=True)[0],
+            'gen_capacity_exceeded': gen_capacity_exceeded
+
         }
     
     return {
@@ -95,12 +103,13 @@ def recommend_load_placement(test_results, max_loading_threshold=80.0):
     for bus_id, results in test_cases.items():
         # Check for violations
         has_violations = len(results['violations']) > 0
-        
+        has_gen_capacity_issues = results['gen_capacity_exceeded']
+
         # Get maximum line loading
         max_loading = max([c['new_loading'] for c in results['loading_changes']])
         
         # Calculate a score (lower is better)
-        if has_violations:
+        if has_violations or has_gen_capacity_issues:
             score = 1000  # Penalize heavily for violations
         else:
             # Score based on maximum loading and maximum change
@@ -109,6 +118,8 @@ def recommend_load_placement(test_results, max_loading_threshold=80.0):
         evaluations.append({
             'bus_id': bus_id,
             'has_violations': has_violations,
+            'has_gen_capacity_issues': has_gen_capacity_issues,
+
             'max_line_loading': max_loading,
             'max_loading_change': results['max_loading_change'],
             'most_affected_line': f"{results['most_affected_line']['from_bus']} to {results['most_affected_line']['to_bus']}",
