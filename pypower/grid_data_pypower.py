@@ -14,6 +14,20 @@ def get_case9():
     # Return the case
     return ppc
 
+def get_case118():
+    """
+    Get the IEEE 9-bus test case in PYPOWER format.
+    
+    Returns:
+        dict: PYPOWER case dictionary
+    """
+    # Get the standard PYPOWER case9
+    ppc = case118()
+    
+    # Return the case
+    return ppc
+
+
 def add_load_to_bus(ppc, bus_id, new_load_mw, new_load_mvar=0.0):
     """
     Add a new load to a specific bus in the PYPOWER case.
