@@ -1,4 +1,4 @@
-from grid_data_pypower import get_case9, add_load_to_bus
+from grid_data_pypower import get_case9, add_load_to_bus, get_case118
 from power_flow_pypower import (
     run_dc_power_flow,
     check_line_violations,
@@ -20,7 +20,7 @@ def test_new_load_placement(test_buses, new_load_mw=50.0, new_load_mvar=20.0, us
         dict: Test results for each bus
     """
     # Get the base case
-    ppc = get_case9()
+    ppc = get_case118()
     
     # Run base case power flow
     if use_dc:

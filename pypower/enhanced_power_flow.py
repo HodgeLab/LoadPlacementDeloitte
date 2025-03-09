@@ -5,7 +5,7 @@ with generator violation checking
 
 import sys
 import numpy as np
-from pypower.api import case9, runpf, rundcpf, ppoption
+from pypower.api import case9, runpf, rundcpf, ppoption, case118
 
 def add_load(ppc, bus_id, load_mw):
     """Add load to a specific bus"""
@@ -89,7 +89,7 @@ def check_generator_violations(ppc_results, tolerance_mw=1.0):
 def test_load_impacts(test_buses, load_mw=50.0, use_dc=False):
     """Test the impact of adding load to different buses"""
     # Get the case
-    ppc = case9()
+    ppc = case118()
     
     # Run base case
     ppopt = ppoption(VERBOSE=0, OUT_ALL=0)
