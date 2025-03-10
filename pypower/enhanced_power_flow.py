@@ -29,8 +29,8 @@ def calculate_loading(ppc_results):
         to_bus = int(ppc_results['branch'][i, 1]) + 1    # Convert to 1-based
         
         # Get power flow - handling both AC and DC results
-        if 'PF' in ppc_results:  # For DC power flow
-            pf = float(ppc_results['branch'][i, ppc_results['PF']])  # Real power flow
+        if hasattr(ppc_results, 'branch_PF'):  # For DC power flow
+            pf = float(ppc_results['branch'][i, 13])  # Use the same index as AC
             qf = 0  # DC power flow doesn't have reactive power
         else:  # For AC power flow
             pf = float(ppc_results['branch'][i, 13])  # Real power flow
@@ -86,11 +86,12 @@ def check_generator_violations(ppc_results, tolerance_mw=1.0):
     
     return violations
 
-def test_load_impacts(test_buses, load_mw=50.0, use_dc=False):
+
+def test_load_impacts(test_buses, load_mw=50.0, use_dc=True):
     """Test the impact of adding load to different buses"""
     # Get the case
-    ppc = case118()
-    
+    ppc = case9()
+    # ppc['branch'][2, 5] = 100
     # Run base case
     ppopt = ppoption(VERBOSE=0, OUT_ALL=0)
     
@@ -98,6 +99,7 @@ def test_load_impacts(test_buses, load_mw=50.0, use_dc=False):
         try:
             # Try DC power flow
             base_results, success = rundcpf(ppc, ppopt)
+
             if not success:
                 print("DC power flow did not converge. Falling back to AC.")
                 use_dc = False
@@ -125,7 +127,7 @@ def test_load_impacts(test_buses, load_mw=50.0, use_dc=False):
     print(f"==== BASE CASE ({('DC' if use_dc else 'AC')} POWER FLOW) ====")
     print("Bus loads (MW):")
     for i in range(ppc['bus'].shape[0]):
-        bus_id = int(ppc['bus'][i, 0]) + 1
+        bus_id = int(ppc['bus'][i, 0])
         load = float(ppc['bus'][i, 2])
         if load > 0:
             print(f"  Bus {bus_id}: {load:.1f} MW")
