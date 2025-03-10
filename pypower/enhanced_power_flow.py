@@ -6,6 +6,7 @@ with generator violation checking
 import sys
 import numpy as np
 from pypower.api import case9, runpf, rundcpf, ppoption, case118
+from grid_data import get_9bus_system
 
 def add_load(ppc, bus_id, load_mw):
     """Add load to a specific bus"""
@@ -25,8 +26,8 @@ def calculate_loading(ppc_results):
     
     # Examine branch flows
     for i in range(ppc_results['branch'].shape[0]):
-        from_bus = int(ppc_results['branch'][i, 0]) + 1  # Convert to 1-based
-        to_bus = int(ppc_results['branch'][i, 1]) + 1    # Convert to 1-based
+        from_bus = int(ppc_results['branch'][i, 0])  # Convert to 1-based
+        to_bus = int(ppc_results['branch'][i, 1])    # Convert to 1-based
         
         # Get power flow - handling both AC and DC results
         if hasattr(ppc_results, 'branch_PF'):  # For DC power flow
@@ -61,11 +62,11 @@ def check_generator_violations(ppc_results, tolerance_mw=1.0):
     violations = []
     
     for i in range(ppc_results['gen'].shape[0]):
-        bus_id = int(ppc_results['gen'][i, 0]) + 1  # 1-indexed bus number
+        bus_id = int(ppc_results['gen'][i, 0])  # 1-indexed bus number
         output = float(ppc_results['gen'][i, 1])  # PG - active power output
         pmin = float(ppc_results['gen'][i, 9])  # PMIN - minimum output
         pmax = float(ppc_results['gen'][i, 8])  # PMAX - maximum output
-        
+        print(f"  Gen at Bus {bus_id}: is {output:.1f} MW, PMIN is {pmin:.1f}, and PMAX is {pmax:.1f}")
         # Check for violations
         if output > pmax + tolerance_mw:
             violations.append({
@@ -91,8 +92,16 @@ def test_load_impacts(test_buses, load_mw=50.0, use_dc=True):
     """Test the impact of adding load to different buses"""
     # Get the case
     ppc = case9()
+    
+    # ppc['branch'][-3, 5] = 100
+    # ppc['branch'][-2, 5] = 100
     # ppc['branch'][2, 5] = 100
+    # ppc['branch'][1, 5] = 100
+    # ppc['branch'][0, 5] = 120
+    #ppc['branch'][-5, 5] = 100
     # Run base case
+    ppc = get_9bus_system()
+    # import pdb;pdb.set_trace()
     ppopt = ppoption(VERBOSE=0, OUT_ALL=0)
     
     if use_dc:
@@ -139,8 +148,9 @@ def test_load_impacts(test_buses, load_mw=50.0, use_dc=True):
     
     # Print generator information
     print("\nGenerator outputs:")
+    # TODO: Fix the output of the generator to be from the power flow resutls (list mod_results)
     for i in range(ppc['gen'].shape[0]):
-        bus_id = int(ppc['gen'][i, 0]) + 1
+        bus_id = int(ppc['gen'][i, 0])
         output = float(ppc['gen'][i, 1])
         pmin = float(ppc['gen'][i, 9])
         pmax = float(ppc['gen'][i, 8])
@@ -175,7 +185,7 @@ def test_load_impacts(test_buses, load_mw=50.0, use_dc=True):
                 success = False
         else:
             mod_results, success = runpf(modified_ppc, ppopt)
-        
+
         if not success:
             print("  Power flow did not converge!")
             results[bus_id] = {
@@ -186,9 +196,13 @@ def test_load_impacts(test_buses, load_mw=50.0, use_dc=True):
             }
             continue
         
+        print("Modified Results Lines (Load added)")
+
         # Calculate new loading
         new_loading = calculate_loading(mod_results)
-        
+        for line in sorted(new_loading, key=lambda x: x['loading_percent'], reverse=True):
+            print(f"  Line {line['from_bus']}-{line['to_bus']}: {line['loading_percent']:.1f}% " + 
+              f"({line['flow_mva']:.1f} MVA / {line['rating_mva']:.1f} MVA)")        
         # Check generator violations
         gen_violations = check_generator_violations(mod_results)
         
@@ -207,7 +221,7 @@ def test_load_impacts(test_buses, load_mw=50.0, use_dc=True):
         
         # Check if any lines are overloaded
         line_violations = [line for line in new_loading if line['loading_percent'] > 100]
-        
+        print("")
         # Print line violation information
         if line_violations:
             print("  LINE VIOLATIONS:")
