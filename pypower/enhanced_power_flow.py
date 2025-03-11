@@ -91,16 +91,18 @@ def check_generator_violations(ppc_results, tolerance_mw=1.0):
 def test_load_impacts(test_buses, load_mw=50.0, use_dc=True):
     """Test the impact of adding load to different buses"""
     # Get the case
-    ppc = case9()
-    
-    # ppc['branch'][-3, 5] = 100
-    # ppc['branch'][-2, 5] = 100
-    # ppc['branch'][2, 5] = 100
-    # ppc['branch'][1, 5] = 100
-    # ppc['branch'][0, 5] = 120
-    #ppc['branch'][-5, 5] = 100
-    # Run base case
+    #ppc = case9()
     ppc = get_9bus_system()
+    ppc['branch'][-3, 5] = 200
+    ppc['branch'][-2, 5] = 150
+    ppc['branch'][2, 5] = 150
+    ppc['branch'][1, 5] = 100
+    #ppc['branch'][0, 5] = 100
+    
+    #ppc['branch'][-5, 5] = 100
+    # ppc['branch'][3, 5] = 100
+    # Run base case
+    
     # import pdb;pdb.set_trace()
     ppopt = ppoption(VERBOSE=0, OUT_ALL=0)
     
