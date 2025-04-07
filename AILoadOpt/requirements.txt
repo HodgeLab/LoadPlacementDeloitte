@@ -1,0 +1,18 @@
+# Core requirements for power system optimization
+numpy>=1.19.0
+scipy>=1.5.0
+matplotlib>=3.3.0
+pandas>=1.1.0
+
+# Power system analysis
+PYPOWER>=5.1.4  # For Python implementation
+# Alternatively, you can use MATPOWER with the appropriate Python wrapper
+
+# Optional packages for additional functionality
+networkx>=2.5  # For network visualization
+tqdm>=4.48.0  # For progress bars in long-running optimizations
+
+# Development tools (optional)
+pytest>=6.0.0  # For testing
+pylint>=2.6.0  # For code quality
+black>=20.8b1  # For code formatting
